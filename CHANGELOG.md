@@ -2,6 +2,14 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
+## 1.1.1 — 2026-09-28
+
+- documentação completa dos campos de configuração e respectivos limites;
+- esclarecimento da compatibilidade com execução local, SSH e sandbox;
+- documentação do contrato de credenciais, ferramentas de runtime e sessões;
+- instruções corrigidas de instalação, recarga, atualização e remoção;
+- inclusão de diagnóstico e solução de problemas sem expor dados internos.
+
 ## 1.1.0 — 2026-09-28
 
 - prompt transferido de argumentos para `stdin` em NDJSON;
