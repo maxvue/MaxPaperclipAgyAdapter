@@ -1,6 +1,6 @@
 {
   "name": "@maxcode/adapter-antigravity",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Adaptador externo seguro do Antigravity CLI para o Paperclip",
   "license": "MIT",
   "type": "module",
