@@ -174,6 +174,7 @@ test("executa o fluxo completo pelo contrato do Paperclip", async () => {
     outputTokens: 1,
     cachedInputTokens: 3,
   });
+  assert.equal(result.usageBasis, "session_cumulative");
   assert.equal(result.resultJson.antigravity.thinkingTokens, 2);
   assert.equal(dispatches, 1);
   assert.ok(logs.some((log) => log.stream === "stdout"));

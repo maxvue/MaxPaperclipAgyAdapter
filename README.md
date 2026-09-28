@@ -74,7 +74,9 @@ Credenciais, prompts e tokens de autenticação não são persistidos na sessão
 ## Métricas
 
 O adaptador informa tokens de entrada, saída e cache nos campos nativos do
-Paperclip. Tokens de raciocínio são preservados em
+Paperclip. O `agy` apresenta totais cumulativos quando uma conversa é retomada;
+o adaptador declara essa base para que o Paperclip registre apenas o delta de cada
+execução. Tokens de raciocínio são preservados em
 `resultJson.antigravity.thinkingTokens`. O Antigravity não informa necessariamente
 um custo monetário por execução, portanto o adaptador não fabrica esse valor.
 

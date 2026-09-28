@@ -237,7 +237,9 @@ export async function execute(
     errorFamily: error?.family ?? null,
     errorMessage,
     usage: parsed.usage,
-    usageBasis: "per_run",
+    // Em conversas retomadas, o resultado do agy acumula uso e número de turnos
+    // desde o início da conversa. O Paperclip calcula o delta entre execuções.
+    usageBasis: "session_cumulative",
     sessionId: parsed.conversationId,
     sessionParams,
     sessionDisplayId: parsed.conversationId,
