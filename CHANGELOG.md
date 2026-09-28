@@ -2,7 +2,7 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
-## 1.1.1 — 2026-09-28
+## 1.1.5 — 2026-09-28
 
 - documentação completa dos campos de configuração e respectivos limites;
 - esclarecimento da compatibilidade com execução local, SSH e sandbox;
