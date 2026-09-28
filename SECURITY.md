@@ -6,24 +6,26 @@ O adaptador inicia o executável configurado diretamente, sem `shell`, e passa o
 argumentos como uma lista. O prompt não é incluído na lista de argumentos exibida
 nos metadados de execução.
 
-O modo padrão é `sandbox`. O modo `workspace` remove a contenção nativa do
-Antigravity e deve ser habilitado conscientemente pelo operador.
+O modo padrão habilita aprovação automática e `--sandbox`. Essa contenção cobre
+comandos de terminal, não todas as ferramentas que um agente Antigravity possa
+ter (por exemplo, navegador e MCP). O modo `workspace` também remove essa
+contenção de terminal e deve ser habilitado conscientemente pelo operador.
 
 ## Dados sensíveis
 
 - credenciais não são armazenadas nos parâmetros de sessão;
 - o token temporário do Paperclip é entregue apenas ao processo da execução;
 - o adaptador não aceita variáveis de ambiente arbitrárias;
-- prompts não são reproduzidos na linha de comando registrada;
+- o prompt é enviado por `stdin` e não aparece na linha de comando do processo;
 - arquivos de instruções possuem limite de 512 KiB.
 - valores de ambiente sensíveis, JWTs e cabeçalhos Bearer são redigidos antes
   que logs ou resultados estruturados sejam entregues ao Paperclip.
 
 ## Limites conhecidos
 
-- o processo `agy` ainda recebe o prompt em `--print`, como exigido pelo CLI; em
-  alguns sistemas, argumentos podem ser visíveis a outros processos do mesmo usuário;
-- a segurança final depende das garantias do sandbox implementado pelo Antigravity;
+- o adaptador herda somente uma lista explícita de variáveis de sistema,
+  autenticação e proxy; as demais são removidas do processo filho;
+- o sandbox do Antigravity não é uma contenção geral de navegador, MCP ou rede;
 - um caminho personalizado em `command` equivale a autorizar a execução desse binário.
 
 ## Relato de vulnerabilidades

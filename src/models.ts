@@ -11,6 +11,32 @@ const fallbackModels: AdapterModel[] = [
 export function parseModelsOutput(stdout: string): AdapterModel[] {
   const models: AdapterModel[] = [];
   const seen = new Set<string>();
+  try {
+    const decoded: unknown = JSON.parse(stdout.trim());
+    if (typeof decoded === "object" && decoded !== null) {
+      const command = (decoded as Record<string, unknown>).command;
+      const data = typeof command === "object" && command !== null
+        ? (command as Record<string, unknown>).data
+        : null;
+      const entries = typeof data === "object" && data !== null
+        ? (data as Record<string, unknown>).models
+        : null;
+      if (Array.isArray(entries)) {
+        for (const entry of entries) {
+          if (typeof entry !== "object" || entry === null) continue;
+          const id = String((entry as Record<string, unknown>).id ?? "").trim();
+          const label = String((entry as Record<string, unknown>).label ?? id).trim();
+          if (id && !seen.has(id)) {
+            seen.add(id);
+            models.push({ id, label: label || id });
+          }
+        }
+        if (models.length > 0) return models;
+      }
+    }
+  } catch {
+    // Compatibilidade com versões antigas que retornam uma tabela TSV.
+  }
   for (const rawLine of stdout.split(/\r?\n/)) {
     if (!rawLine.includes("\t")) continue;
     const [rawId, ...rawLabel] = rawLine.split("\t");
@@ -25,7 +51,7 @@ export function parseModelsOutput(stdout: string): AdapterModel[] {
 
 export async function listModels(command = "agy"): Promise<AdapterModel[]> {
   try {
-    const { stdout } = await execFileAsync(command, ["models"], {
+    const { stdout } = await execFileAsync(command, ["--output-format", "json", "models"], {
       timeout: 30_000,
       maxBuffer: 4 * 1024 * 1024,
     });
@@ -43,7 +69,8 @@ export function inferProvider(model: string): string {
   if (normalized.startsWith("gpt") || normalized.startsWith("o1") || normalized.startsWith("o3")) {
     return "openai";
   }
-  return "google";
+  if (normalized.startsWith("gemini")) return "google";
+  return "antigravity";
 }
 
 export { fallbackModels as models };

@@ -25,6 +25,7 @@ function normalize(raw: unknown): Record<string, unknown> | null {
     const value = stringValue(raw[key]);
     if (value) result[key] = value;
   }
+  if (isRecord(raw.executionTarget)) result.executionTarget = raw.executionTarget;
   return result;
 }
 
@@ -38,12 +39,11 @@ export const sessionCodec: AdapterSessionCodec = {
 
 export const sessionManagement: AdapterSessionManagement = {
   supportsSessionResume: true,
-  nativeContextManagement: "unknown",
+  nativeContextManagement: "confirmed",
   defaultSessionCompaction: {
     enabled: true,
-    maxSessionRuns: 200,
-    maxRawInputTokens: 2_000_000,
-    maxSessionAgeHours: 72,
+    maxSessionRuns: 20,
+    maxRawInputTokens: 200_000,
+    maxSessionAgeHours: 24,
   },
 };
-

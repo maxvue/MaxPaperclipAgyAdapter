@@ -14,6 +14,7 @@ export interface ParsedToolCall {
 export interface ParsedAgyStream {
   conversationId: string | null;
   status: string | null;
+  effectiveModel: string | null;
   response: string | null;
   assistantText: string;
   usage?: UsageSummary;
@@ -27,6 +28,18 @@ export interface ParsedAgyStream {
   errorMessage: string | null;
   malformedLines: number;
   unknownEvents: string[];
+  unknownStepTypes: string[];
+  deniedActions: unknown[];
+}
+
+export interface ParsedAgyError {
+  code: string | null;
+  status: string | null;
+  message: string | null;
+  retryable: boolean | null;
+  errorId: string | null;
+  retryNotBefore: string | null;
+  raw: Record<string, unknown>;
 }
 
 function readUsage(value: unknown): {
@@ -65,6 +78,7 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
   const parsed: ParsedAgyStream = {
     conversationId: null,
     status: null,
+    effectiveModel: null,
     response: null,
     assistantText: "",
     thinkingTokens: null,
@@ -77,6 +91,8 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
     errorMessage: null,
     malformedLines: 0,
     unknownEvents: [],
+    unknownStepTypes: [],
+    deniedActions: [],
   };
   const tools = new Map<number, ParsedToolCall>();
   let fallbackUsage: ReturnType<typeof readUsage> = null;
@@ -103,6 +119,7 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
       parsed.conversationId =
         stringValue(event.conversation_id) || parsed.conversationId;
       if (isRecord(event.init)) {
+        parsed.effectiveModel = stringValue(event.init.model) || parsed.effectiveModel;
         parsed.permissionMode =
           stringValue(event.init.permission_mode) || parsed.permissionMode;
         if (Array.isArray(event.init.tools)) {
@@ -153,7 +170,9 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
         call.durationSeconds = finiteNumber(step.duration_seconds) ?? call.durationSeconds;
         call.completed = stringValue(step.state).toUpperCase() === "DONE";
         tools.set(stepIndex, call);
+        continue;
       }
+      if (stepType) parsed.unknownStepTypes.push(stepType);
       continue;
     }
 
@@ -175,6 +194,7 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
         parsed.thinkingTokens = resultUsage.thinkingTokens;
       }
       parsed.errorMessage = readError(result) ?? parsed.errorMessage;
+      if (Array.isArray(result.denied_actions)) parsed.deniedActions = result.denied_actions;
       continue;
     }
 
@@ -191,6 +211,29 @@ export function parseAgyStream(stdout: string): ParsedAgyStream {
     parsed.errorMessage = `agy encerrou com o status ${parsed.status}`;
   }
   return parsed;
+}
+
+export function parseAgyError(stderr: string): ParsedAgyError | null {
+  for (const line of stderr.split(/\r?\n/)) {
+    const marker = line.indexOf("AGY_ERROR:");
+    if (marker < 0) continue;
+    try {
+      const decoded: unknown = JSON.parse(line.slice(marker + "AGY_ERROR:".length).trim());
+      if (!isRecord(decoded)) continue;
+      return {
+        code: stringValue(decoded.code) || null,
+        status: stringValue(decoded.status) || null,
+        message: stringValue(decoded.message) || stringValue(decoded.error) || null,
+        retryable: typeof decoded.retryable === "boolean" ? decoded.retryable : null,
+        errorId: stringValue(decoded.error_id) || stringValue(decoded.errorId) || null,
+        retryNotBefore: stringValue(decoded.retry_not_before) || stringValue(decoded.retryNotBefore) || null,
+        raw: decoded,
+      };
+    } catch {
+      // Uma linha inválida continua disponível no stderr para diagnóstico.
+    }
+  }
+  return null;
 }
 
 const AUTH_PATTERNS = [

@@ -6,8 +6,20 @@ if (args.includes("--version")) {
   process.exit(0);
 }
 if (args.includes("models")) {
-  console.log("fake-model\tModelo de teste");
+  if (args.includes("json")) {
+    console.log(JSON.stringify({ command: { name: "models", data: { models: [{ id: "fake-model", label: "Modelo de teste" }] } } }));
+  } else {
+    console.log("fake-model\tModelo de teste");
+  }
   process.exit(0);
+}
+
+let input = "";
+for await (const chunk of process.stdin) input += chunk;
+const event = JSON.parse(input.trim());
+if (event.event !== "user" || typeof event.message?.content !== "string") {
+  console.error("AGY_ERROR: " + JSON.stringify({ code: "invalid_input", message: "Evento de entrada inválido" }));
+  process.exit(2);
 }
 
 console.log(JSON.stringify({
@@ -28,7 +40,7 @@ console.log(JSON.stringify({
     tool_name: "run_command",
     tool_info: {
       parameters: { CommandLine: "env" },
-      output: `PAPERCLIP_API_KEY=${process.env.PAPERCLIP_API_KEY ?? "ausente"}`,
+      output: `PAPERCLIP_API_KEY=${process.env.PAPERCLIP_API_KEY ?? "ausente"}\nunrelated=${process.env.MAXPAPERCLIP_TEST_SECRET ?? "ausente"}`,
     },
   },
 }));

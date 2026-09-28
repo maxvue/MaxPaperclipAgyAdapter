@@ -15,11 +15,19 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
         group: "Execução",
       },
       {
+        key: "agent",
+        label: "Agente personalizado do agy",
+        type: "text",
+        hint: "Nome opcional de um agente Antigravity com ferramentas e regras restritas.",
+        group: "Execução",
+      },
+      {
         key: "model",
         label: "Modelo",
         type: "combobox",
         default: DEFAULT_MODEL,
         options: models.map((model) => ({ label: model.label, value: model.id })),
+        hint: "Aplicável somente ao modelo automático; modelos explícitos já incorporam sua configuração.",
         group: "Execução",
       },
       {
@@ -48,10 +56,18 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
         type: "select",
         default: "sandbox",
         options: [
-          { label: "Sandbox do Antigravity (recomendado)", value: "sandbox" },
+          { label: "Aprovação automática + sandbox de terminal (recomendado)", value: "sandbox" },
           { label: "Workspace sem sandbox", value: "workspace" },
         ],
-        hint: "O modo workspace permite que o agy altere diretamente o diretório de trabalho.",
+        hint: "O sandbox limita comandos de terminal; navegador, MCP e outras ferramentas do agente não são isolados por esta opção.",
+        group: "Segurança",
+      },
+      {
+        key: "disableSlashCommands",
+        label: "Desabilitar comandos / no prompt",
+        type: "toggle",
+        default: true,
+        hint: "Impede expansão acidental de comandos slash recebidos em tarefas.",
         group: "Segurança",
       },
       {
@@ -65,7 +81,7 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
         key: "promptTemplate",
         label: "Modelo de prompt",
         type: "textarea",
-        hint: "Aceita {{agentName}}, {{taskTitle}}, {{taskDescription}} e {{wakeReason}}.",
+        hint: "Aceita os campos do agente, tarefa, projeto, empresa, comentário e wake payload.",
         group: "Prompt",
       },
       {
@@ -85,4 +101,3 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
     ],
   };
 }
-

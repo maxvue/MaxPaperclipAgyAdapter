@@ -1,15 +1,21 @@
 import path from "node:path";
 
 export type PermissionMode = "sandbox" | "workspace";
+export type AgyMode = "default" | "plan";
 
 export interface BuildAgyArgsInput {
-  prompt: string;
+  /** @deprecated O prompt agora é enviado exclusivamente por stdin. */
+  prompt?: string;
   conversationId: string | null;
   model: string;
   effort: string;
   cwd: string;
   permissionMode: PermissionMode;
-  timeoutSec: number;
+  mode?: AgyMode;
+  agent?: string;
+  disableSlashCommands?: boolean;
+  /** @deprecated O timeout interno do agy foi removido; o Paperclip é autoritativo. */
+  timeoutSec?: number;
   additionalDirectories?: string[];
 }
 
@@ -17,14 +23,13 @@ export function modelIncludesEffort(model: string): boolean {
   return /-(?:low|medium|high)$/i.test(model.trim());
 }
 
-export function resolvePrintTimeoutSec(timeoutSec: number): number {
-  if (!Number.isFinite(timeoutSec) || timeoutSec <= 0) return 0;
-  const margin = Math.max(10, Math.floor(timeoutSec * 0.05));
-  return Math.max(30, Math.floor(timeoutSec - margin));
+/** @deprecated O timeout interno do agy não deve ser utilizado. */
+export function resolvePrintTimeoutSec(_timeoutSec: number): number {
+  return 0;
 }
 
 export function buildAgyArgs(input: BuildAgyArgsInput): string[] {
-  const args = ["--output-format", "stream-json"];
+  const args = ["--input-format", "stream-json", "--output-format", "stream-json"];
 
   if (input.conversationId) args.push("--conversation", input.conversationId);
 
@@ -32,12 +37,17 @@ export function buildAgyArgs(input: BuildAgyArgsInput): string[] {
   if (model && model !== "auto") args.push("--model", model);
 
   const effort = input.effort.trim().toLowerCase();
-  if (["low", "medium", "high"].includes(effort) && !modelIncludesEffort(model)) {
+  if (model === "auto" && ["low", "medium", "high"].includes(effort)) {
     args.push("--effort", effort);
   }
 
-  // Execuções do Paperclip são não interativas. No modo padrão, as aprovações
-  // automáticas permanecem contidas pelo sandbox nativo do Antigravity.
+  if (input.mode === "plan") args.push("--mode", "plan");
+  const agent = input.agent?.trim();
+  if (agent) args.push("--agent", agent);
+  if (input.disableSlashCommands !== false) args.push("--disable-slash-commands");
+
+  // O modo headless exige aprovação automática. --sandbox limita apenas os
+  // comandos de terminal; outras ferramentas continuam sujeitas ao agente agy.
   args.push("--dangerously-skip-permissions");
   if (input.permissionMode === "sandbox") args.push("--sandbox");
 
@@ -47,20 +57,13 @@ export function buildAgyArgs(input: BuildAgyArgsInput): string[] {
     if (resolved !== path.resolve(input.cwd)) args.push("--add-dir", resolved);
   }
 
-  const printTimeoutSec = resolvePrintTimeoutSec(input.timeoutSec);
-  if (printTimeoutSec > 0) args.push("--print-timeout", `${printTimeoutSec}s`);
-
-  args.push("--print", input.prompt);
   return args;
 }
 
-export function redactPromptArgument(args: string[]): string[] {
-  const redacted = [...args];
-  const printIndex = redacted.lastIndexOf("--print");
-  if (printIndex >= 0 && printIndex + 1 < redacted.length) {
-    const prompt = redacted[printIndex + 1] ?? "";
-    redacted[printIndex + 1] = `<prompt ${prompt.length} caracteres>`;
-  }
-  return redacted;
+export function buildAgyStdin(prompt: string): string {
+  return `${JSON.stringify({ event: "user", message: { content: prompt } })}\n`;
 }
 
+export function redactPromptArgument(args: string[]): string[] {
+  return [...args];
+}

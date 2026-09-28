@@ -30,7 +30,7 @@ Campos principais:
 - cwd: diretório absoluto alternativo para a execução;
 - model: modelo do Antigravity, ou auto;
 - effort: low, medium ou high;
-- permissionMode: sandbox (padrão seguro) ou workspace;
+- permissionMode: aprovação automática com sandbox apenas de terminal, ou workspace;
 - timeoutSec e graceSec: limites de execução e encerramento.
 `;
 
@@ -62,9 +62,9 @@ export function createServerAdapter(): ServerAdapterModule {
 export default createServerAdapter;
 
 export { ADAPTER_LABEL, ADAPTER_TYPE } from "./constants.js";
-export { buildAgyArgs, redactPromptArgument, resolvePrintTimeoutSec } from "./args.js";
+export { buildAgyArgs, buildAgyStdin, redactPromptArgument, resolvePrintTimeoutSec } from "./args.js";
 export { inferProvider } from "./models.js";
 export { buildPrompt } from "./prompt.js";
-export { isTransientError, parseAgyStream } from "./parser.js";
-export { collectSensitiveValues, redactRecord, redactString, redactValue } from "./redaction.js";
+export { isTransientError, parseAgyError, parseAgyStream } from "./parser.js";
+export { collectSensitiveValues, createStreamingRedactor, isSensitiveKey, redactRecord, redactString, redactValue } from "./redaction.js";
 export { sessionCodec, sessionManagement } from "./session.js";

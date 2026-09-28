@@ -8,19 +8,22 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 
 ## Recursos implementados
 
-- execução local do `agy` sem shell intermediário;
-- saída NDJSON por `--output-format stream-json`;
+- execução local, SSH e em sandbox remoto pela abstração oficial do Paperclip;
+- entrada e saída NDJSON por `stream-json`, com o prompt enviado por `stdin`;
 - criação e retomada de conversas;
 - invalidação segura da sessão quando o workspace muda;
-- nova tentativa única quando uma conversa armazenada expirou;
+- recuperação nativa de conversas expiradas sem repetir a tarefa;
 - tokens de entrada, saída, cache e raciocínio;
 - ferramentas e resultados no histórico visual do Paperclip;
-- descoberta dinâmica de modelos;
-- teste de instalação, autenticação e diretório;
-- sandbox do Antigravity ativado por padrão;
+- descoberta dinâmica de modelos pelo formato JSON estruturado;
+- teste de versão, instalação, autenticação e diretório no ambiente de execução;
+- aprovação automática com sandbox de terminal ativado por padrão;
 - timeout e período de encerramento configuráveis;
 - instruções externas com limite de tamanho;
-- parser visual isolado compatível com o contrato `1.0.0`.
+- parser visual isolado compatível com o contrato `1.0.0`;
+- cancelamento cooperativo antes e durante o processo;
+- isolamento do ambiente herdado e desativação de comandos slash por padrão;
+- modo de planejamento do Paperclip encaminhado ao `agy`.
 - redação recursiva de tokens, chaves, cookies e cabeçalhos Bearer em logs e
   resultados estruturados.
 
@@ -65,15 +68,17 @@ O tipo registrado no Paperclip é `maxpaperclip_agy`.
 
 ### Modos de permissão
 
-- `sandbox`: padrão recomendado. O `agy` recebe aprovações automáticas, mas executa
-  dentro do sandbox nativo do Antigravity.
+- `sandbox`: padrão recomendado. O `agy` recebe aprovações automáticas e seus
+  comandos de terminal usam o sandbox. Navegador, MCP e outras ferramentas do
+  agente não são isolados por essa opção.
 - `workspace`: permite alterações diretas no workspace. Use apenas em ambientes
   confiáveis e com versionamento ou backup.
 
 ## Sessões
 
 O ID da conversa do Antigravity é salvo nos parâmetros de sessão do Paperclip. A
-conversa só é retomada quando o diretório salvo coincide com o workspace atual.
+conversa só é retomada quando o diretório e o ambiente de execução salvos
+coincidem com o workspace atual.
 Credenciais, prompts e tokens de autenticação não são persistidos na sessão.
 
 ## Métricas

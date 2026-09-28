@@ -73,7 +73,11 @@ function parseStdoutLine(line, ts) {
       }
       return [{ kind: "tool_call", ts: ts, name: name, input: parameters, toolUseId: id }];
     }
-    return [];
+    if (step.step_type === "subagent_info") {
+      var subagent = record(step.subagent_info) || step;
+      return [{ kind: "stdout", ts: ts, text: "Subagente Antigravity: " + JSON.stringify(subagent) }];
+    }
+    return [{ kind: "stdout", ts: ts, text: trimmed }];
   }
 
   if (event.event === "result") {
@@ -89,7 +93,6 @@ function parseStdoutLine(line, ts) {
       inputTokens: number(usage.input_tokens),
       outputTokens: number(usage.output_tokens),
       cachedTokens: number(usage.cache_read_tokens),
-      costUsd: 0,
       subtype: status.toLowerCase(),
       isError: failed,
       errors: failed && error ? [error] : [],
@@ -101,4 +104,3 @@ function parseStdoutLine(line, ts) {
 }
 
 module.exports = { parseStdoutLine: parseStdoutLine };
-

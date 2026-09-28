@@ -8,6 +8,7 @@ import {
   renderPaperclipWakePrompt,
   renderTemplate,
   selectPaperclipTaskMarkdown,
+  stringifyPaperclipWakePayload,
 } from "@paperclipai/adapter-utils/server-utils";
 import { MAX_INSTRUCTIONS_BYTES } from "./constants.js";
 import { stringValue } from "./value-utils.js";
@@ -42,9 +43,16 @@ export async function buildPrompt(
     companyId: ctx.agent.companyId,
     runId: ctx.runId,
     taskId: stringValue(ctx.context.taskId),
+    issueId: stringValue(ctx.context.issueId) || stringValue(ctx.context.taskId),
     taskTitle: stringValue(ctx.context.taskTitle),
     taskDescription:
       stringValue(ctx.context.taskDescription) || stringValue(ctx.context.description),
+    taskBody: stringValue(ctx.context.taskBody) || stringValue(ctx.context.taskDescription) || stringValue(ctx.context.description),
+    commentId: stringValue(ctx.context.commentId),
+    companyName: stringValue(ctx.context.companyName),
+    projectName: stringValue(ctx.context.projectName),
+    paperclipApiUrl: process.env.PAPERCLIP_API_URL ?? "",
+    wakePayloadJson: stringifyPaperclipWakePayload(ctx.context.paperclipWake) ?? "",
     wakeReason: stringValue(ctx.context.wakeReason),
     company: { id: ctx.agent.companyId },
     agent: ctx.agent,
