@@ -31,8 +31,21 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 
 - Node.js 24.11 ou superior;
 - Paperclip compatível com adaptadores externos;
-- Antigravity CLI instalado e autenticado;
+- Antigravity CLI 1.1.15 ou superior instalado e autenticado; recomenda-se
+  1.2.12 ou superior;
 - comando `agy` disponível no `PATH` do processo do Paperclip.
+
+## Compatibilidade de execução
+
+| Alvo | Suporte | Observações |
+|---|---|---|
+| Host local | Sim | Usa o workspace resolvido pelo Paperclip ou o `cwd` configurado. |
+| SSH | Sim | Executa pelo contrato oficial de alvo remoto do Paperclip. O `agy` e suas credenciais devem existir no alvo. |
+| Sandbox gerenciado | Sim | O runtime precisa disponibilizar o executável `agy`; o adaptador não instala o CLI automaticamente. |
+
+O adaptador declara seu comando por `getRuntimeCommandSpec()`, mas não fornece
+`installCommand`. A preparação da imagem ou do host remoto é responsabilidade
+do operador.
 
 ## Desenvolvimento local
 
@@ -55,6 +68,29 @@ paperclipai adapter install --payload-json '{"packageName":"@maxvue/maxpaperclip
 
 O tipo registrado no Paperclip é `maxpaperclip_agy`.
 
+### Atualização e ciclo de vida
+
+```bash
+# Consultar o adaptador registrado
+paperclipai adapter get maxpaperclip_agy
+
+# Buscar novamente a versão publicada no npm e recarregar
+paperclipai adapter reinstall maxpaperclip_agy
+
+# Recarregar uma instalação por caminho local após recompilar
+paperclipai adapter reload maxpaperclip_agy
+
+# Ocultar das telas de criação sem interromper agentes existentes
+paperclipai adapter update maxpaperclip_agy --payload-json '{"disabled":true}'
+
+# Remover a instalação externa
+paperclipai adapter delete maxpaperclip_agy
+```
+
+Instalações e demais mutações de adaptadores exigem um administrador da
+instância. Instâncias cloud-managed podem proibir instalação dinâmica por
+política da plataforma.
+
 ## Configuração mínima
 
 ```json
@@ -65,6 +101,25 @@ O tipo registrado no Paperclip é `maxpaperclip_agy`.
   "cwd": "/caminho/absoluto/do/projeto"
 }
 ```
+
+## Campos de configuração
+
+| Campo | Tipo | Padrão | Descrição |
+|---|---|---|---|
+| `command` | string | `agy` | Nome do executável ou caminho absoluto. É iniciado diretamente, sem shell. |
+| `agent` | string | — | Agente personalizado do Antigravity. |
+| `model` | string | `auto` | Modelo retornado pela descoberta estruturada do `agy`. |
+| `effort` | string | automático | `low`, `medium` ou `high`; só pode ser usado com `model: "auto"`. |
+| `cwd` | string absoluto | workspace da tarefa | Fallback quando a execução não possui workspace apropriado. |
+| `permissionMode` | string | `sandbox` | `sandbox` ou `workspace`. Ambos usam aprovação automática; muda a contenção dos comandos de terminal. |
+| `disableSlashCommands` | boolean | `true` | Evita expansão acidental de comandos `/` vindos de tarefas. |
+| `instructionsFilePath` | string absoluto | — | Arquivo Markdown/`AGENTS.md` de até 512 KiB, acrescentado ao prompt. |
+| `promptTemplate` | string | contrato padrão do Paperclip | Template com dados do agente, tarefa, projeto, empresa, comentário e wake payload. |
+| `timeoutSec` | número | `3600` | Limite de execução entre 1 e 86.400 segundos. `0` desativa o timeout do adaptador. |
+| `graceSec` | número | `15` | Espera entre 1 e 120 segundos antes do encerramento forçado. |
+
+Os campos também são expostos por `getConfigSchema()`, permitindo que versões
+compatíveis do Paperclip gerem o formulário sem código de interface específico.
 
 ### Modos de permissão
 
@@ -81,6 +136,26 @@ conversa só é retomada quando o diretório e o ambiente de execução salvos
 coincidem com o workspace atual.
 Credenciais, prompts e tokens de autenticação não são persistidos na sessão.
 
+Uma sessão incompatível com o workspace ou o alvo de execução atual é
+descartada antes da chamada, e uma conversa nova é iniciada para impedir que o
+contexto de um ambiente seja aplicado a outro. Se o provedor rejeitar uma
+sessão expirada ou inválida, a execução informa a falha sem repetir
+automaticamente a solicitação.
+
+## Identidade e ferramentas do Paperclip
+
+Cada execução recebe identidade e acesso temporários do Paperclip:
+
+- `PAPERCLIP_AGENT_ID`, `PAPERCLIP_COMPANY_ID` e `PAPERCLIP_RUN_ID`;
+- `PAPERCLIP_API_URL`;
+- `PAPERCLIP_API_KEY`, quando o host fornece o token daquela execução;
+- variáveis `PAPERCLIP_RUNTIME_TOOLS_*`, quando ferramentas de conexão são
+  concedidas.
+
+O adaptador usa entrega de ferramentas por ambiente. Esses valores são
+controlados pelo host, não vêm da configuração do agente e não são persistidos
+na sessão.
+
 ## Métricas
 
 O adaptador informa tokens de entrada, saída e cache nos campos nativos do
@@ -89,6 +164,57 @@ o adaptador declara essa base para que o Paperclip registre apenas o delta de ca
 execução. Tokens de raciocínio são preservados em
 `resultJson.antigravity.thinkingTokens`. O Antigravity não informa necessariamente
 um custo monetário por execução, portanto o adaptador não fabrica esse valor.
+
+## Teste do ambiente
+
+O botão **Testar ambiente** do Paperclip verifica no mesmo alvo da execução:
+
+1. disponibilidade do diretório de trabalho;
+2. execução de `agy --version` e versão mínima 1.1.15;
+3. autenticação e descoberta de modelos via saída JSON;
+4. aviso quando `permissionMode: "workspace"` está habilitado.
+
+## Solução de problemas
+
+### `agy` não encontrado
+
+Instale o Antigravity CLI no host/SSH/sandbox que executará o agente e confirme
+que o binário está no `PATH`. Alternativamente, configure `command` com um
+caminho absoluto existente naquele alvo.
+
+### Autenticação ou lista de modelos falhou
+
+Execute `agy` interativamente no mesmo usuário e ambiente, conclua o login e
+repita o teste do ambiente. Em SSH ou sandbox, um login existente apenas no
+host do Paperclip não autentica automaticamente o alvo remoto.
+
+### Sessão não foi retomada
+
+Isso é esperado quando o diretório ou o alvo mudou, quando a sessão expirou ou
+quando o provedor não reconhece mais o identificador. Consulte o log da execução
+para distinguir uma rotação segura de uma falha de autenticação.
+
+### A execução expirou
+
+Aumente `timeoutSec` apenas depois de confirmar que o processo continua fazendo
+progresso. No cancelamento ou timeout, o adaptador solicita encerramento do
+processo e observa `graceSec` antes de forçar a parada.
+
+## Parser visual
+
+O pacote publica `./ui-parser` como CommonJS autocontido e declara o contrato
+`paperclip.adapterUiParser: "1.0.0"`. O parser transforma o NDJSON do `agy` em
+mensagens, raciocínio, chamadas/resultados de ferramentas e resultado final.
+Ele não possui imports em runtime e é executado pelo Paperclip em um Web Worker
+isolado.
+
+## Segurança operacional
+
+Adaptadores externos são código confiável executado no processo do servidor
+Paperclip. Revise o pacote e suas dependências antes de instalar. Este adaptador
+restringe o ambiente herdado a uma allowlist, envia o prompt por `stdin`, redige
+segredos em streaming e não executa o campo `command` através de shell. Consulte
+[SECURITY.md](./SECURITY.md) para o modelo de ameaça e o canal de relato.
 
 ## Licença
 
