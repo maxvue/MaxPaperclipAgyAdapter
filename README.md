@@ -21,6 +21,8 @@ ferramentas e diagnósticos sem depender da apresentação textual do terminal.
 - timeout e período de encerramento configuráveis;
 - instruções externas com limite de tamanho;
 - parser visual isolado compatível com o contrato `1.0.0`.
+- redação recursiva de tokens, chaves, cookies e cabeçalhos Bearer em logs e
+  resultados estruturados.
 
 ## Requisitos
 

@@ -26,6 +26,11 @@ import {
   parseAgyStream,
 } from "./parser.js";
 import { buildPrompt } from "./prompt.js";
+import {
+  collectSensitiveValues,
+  redactRecord,
+  redactString,
+} from "./redaction.js";
 import { sessionCodec } from "./session.js";
 import { isRecord, positiveNumber, stringValue } from "./value-utils.js";
 
@@ -84,6 +89,9 @@ export async function execute(
     PAPERCLIP_RUN_ID: ctx.runId,
   };
   if (ctx.authToken) environment.PAPERCLIP_API_KEY = ctx.authToken;
+  const sensitiveValues = collectSensitiveValues(environment);
+  const safeLog: AdapterExecutionContext["onLog"] = (stream, chunk) =>
+    ctx.onLog(stream, redactString(chunk, sensitiveValues));
 
   const stored = sessionCodec.deserialize(
     ctx.runtime.sessionParams ?? ctx.runtime.sessionId,
@@ -144,7 +152,7 @@ export async function execute(
       env: environment,
       timeoutSec,
       graceSec,
-      onLog: ctx.onLog,
+      onLog: safeLog,
       onSpawn: ctx.onSpawn,
     });
     return {
@@ -194,13 +202,32 @@ export async function execute(
         parsedError: parsed.errorMessage,
         timedOut: processResult.timedOut,
       });
-  const errorMessage = succeeded
+  const rawErrorMessage = succeeded
     ? null
     : parsed.errorMessage ||
       (processResult.timedOut
         ? `agy excedeu o limite de ${timeoutSec} segundos`
         : processResult.stderr.trim() ||
           `agy encerrou com código ${processResult.exitCode ?? "desconhecido"}`);
+  const errorMessage = rawErrorMessage
+    ? redactString(rawErrorMessage, sensitiveValues)
+    : null;
+  const rawSummary = parsed.response?.split(/\r?\n/).find((line) => line.trim())?.trim() ?? null;
+  const resultJson = redactRecord(
+    {
+      ...(parsed.result ?? {}),
+      antigravity: {
+        thinkingTokens: parsed.thinkingTokens,
+        tools: parsed.tools,
+        availableTools: parsed.availableTools,
+        permissionMode: parsed.permissionMode,
+        malformedLines: parsed.malformedLines,
+        unknownEvents: parsed.unknownEvents,
+        retriedWithoutSession,
+      },
+    },
+    sensitiveValues,
+  );
 
   return {
     exitCode: succeeded ? 0 : processResult.exitCode ?? 1,
@@ -220,18 +247,7 @@ export async function execute(
     model: effectiveModel,
     billingType: "subscription",
     costUsd: null,
-    summary: parsed.response?.split(/\r?\n/).find((line) => line.trim())?.trim() ?? null,
-    resultJson: {
-      ...(parsed.result ?? {}),
-      antigravity: {
-        thinkingTokens: parsed.thinkingTokens,
-        tools: parsed.tools,
-        availableTools: parsed.availableTools,
-        permissionMode: parsed.permissionMode,
-        malformedLines: parsed.malformedLines,
-        unknownEvents: parsed.unknownEvents,
-        retriedWithoutSession,
-      },
-    },
+    summary: rawSummary ? redactString(rawSummary, sensitiveValues) : null,
+    resultJson,
   };
 }

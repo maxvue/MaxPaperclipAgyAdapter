@@ -20,6 +20,19 @@ console.log(JSON.stringify({
   step_update: { step_index: 1, state: "DONE", step_type: "agent_response", text_delta: "OK" },
 }));
 console.log(JSON.stringify({
+  event: "step_update",
+  step_update: {
+    step_index: 2,
+    state: "DONE",
+    step_type: "tool",
+    tool_name: "run_command",
+    tool_info: {
+      parameters: { CommandLine: "env" },
+      output: `PAPERCLIP_API_KEY=${process.env.PAPERCLIP_API_KEY ?? "ausente"}`,
+    },
+  },
+}));
+console.log(JSON.stringify({
   event: "result",
   result: {
     status: "SUCCESS",
@@ -28,4 +41,3 @@ console.log(JSON.stringify({
     usage: { input_tokens: 12, output_tokens: 1, cache_read_tokens: 3, thinking_tokens: 2 },
   },
 }));
-

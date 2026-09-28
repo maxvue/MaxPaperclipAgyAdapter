@@ -66,4 +66,5 @@ export { buildAgyArgs, redactPromptArgument, resolvePrintTimeoutSec } from "./ar
 export { inferProvider } from "./models.js";
 export { buildPrompt } from "./prompt.js";
 export { isTransientError, parseAgyStream } from "./parser.js";
+export { collectSensitiveValues, redactRecord, redactString, redactValue } from "./redaction.js";
 export { sessionCodec, sessionManagement } from "./session.js";

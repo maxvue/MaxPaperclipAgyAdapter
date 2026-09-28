@@ -137,6 +137,7 @@ test("executa o fluxo completo pelo contrato do Paperclip", async () => {
   const fakeAgy = fileURLToPath(new URL("./fixtures/fake-agy.mjs", import.meta.url));
   await fs.chmod(fakeAgy, 0o755);
   const logs = [];
+  const secret = "segredo-de-teste-comprido-123";
   let dispatches = 0;
   const result = await createServerAdapter().execute({
     runId: "run-integration",
@@ -161,6 +162,7 @@ test("executa o fluxo completo pelo contrato do Paperclip", async () => {
       graceSec: 1,
     },
     context: { taskTitle: "Teste de integração" },
+    authToken: secret,
     onLog: async (stream, chunk) => logs.push({ stream, chunk }),
     onDispatch: () => { dispatches += 1; },
   });
@@ -175,4 +177,7 @@ test("executa o fluxo completo pelo contrato do Paperclip", async () => {
   assert.equal(result.resultJson.antigravity.thinkingTokens, 2);
   assert.equal(dispatches, 1);
   assert.ok(logs.some((log) => log.stream === "stdout"));
+  assert.equal(JSON.stringify(result).includes(secret), false);
+  assert.equal(JSON.stringify(logs).includes(secret), false);
+  assert.match(JSON.stringify(result), /\*\*\*REDACTED\*\*\*/);
 });

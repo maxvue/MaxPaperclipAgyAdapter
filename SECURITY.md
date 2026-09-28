@@ -16,6 +16,8 @@ Antigravity e deve ser habilitado conscientemente pelo operador.
 - o adaptador não aceita variáveis de ambiente arbitrárias na versão inicial;
 - prompts não são reproduzidos na linha de comando registrada;
 - arquivos de instruções possuem limite de 512 KiB.
+- valores de ambiente sensíveis, JWTs e cabeçalhos Bearer são redigidos antes
+  que logs ou resultados estruturados sejam entregues ao Paperclip.
 
 ## Limites conhecidos
 
@@ -28,4 +30,3 @@ Antigravity e deve ser habilitado conscientemente pelo operador.
 
 Não publique credenciais ou dados de clientes numa issue pública. Abra um relato
 privado no repositório assim que o canal de segurança estiver configurado.
-
