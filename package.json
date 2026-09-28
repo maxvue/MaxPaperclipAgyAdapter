@@ -1,0 +1,58 @@
+{
+  "name": "@maxcode/adapter-antigravity",
+  "version": "0.1.0",
+  "description": "Adaptador externo seguro do Antigravity CLI para o Paperclip",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "paperclip",
+    "paperclip-adapter",
+    "antigravity",
+    "agy",
+    "ai-agent"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./ui-parser": "./ui-parser.cjs"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "paperclip": {
+    "adapterUiParser": "1.0.0"
+  },
+  "files": [
+    "dist",
+    "ui-parser.cjs",
+    "README.md",
+    "SECURITY.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build",
+    "clean": "rm -rf dist coverage",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test \"test/**/*.test.mjs\"",
+    "verify": "npm run typecheck && npm test && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@paperclipai/adapter-utils": "^2026.916.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=24.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

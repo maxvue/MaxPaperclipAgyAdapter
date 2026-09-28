@@ -1,0 +1,7 @@
+{"event":"init","conversation_id":"conv-123","init":{"cwd":"/workspace","tools":["read_file","shell"],"permission_mode":"sandbox"}}
+{"event":"step_update","step_update":{"step_index":1,"state":"ACTIVE","step_type":"agent_response","text_delta":"Trabalho "}}
+{"event":"step_update","step_update":{"step_index":2,"state":"ACTIVE","step_type":"tool","tool_name":"read_file","tool_info":{"parameters":{"Path":"README.md"}}}}
+{"event":"step_update","step_update":{"step_index":2,"state":"DONE","step_type":"tool","tool_name":"read_file","tool_info":{"parameters":{"Path":"README.md"},"output":"conteúdo"},"duration_seconds":0.2}}
+{"event":"step_update","step_update":{"step_index":3,"state":"DONE","step_type":"agent_response","text_delta":"concluído."}}
+{"event":"result","result":{"status":"SUCCESS","response":"Trabalho concluído.","num_turns":2,"duration_seconds":1.5,"usage":{"input_tokens":100,"output_tokens":25,"cache_read_tokens":40,"thinking_tokens":7}}}
+
