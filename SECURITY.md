@@ -13,7 +13,7 @@ Antigravity e deve ser habilitado conscientemente pelo operador.
 
 - credenciais não são armazenadas nos parâmetros de sessão;
 - o token temporário do Paperclip é entregue apenas ao processo da execução;
-- o adaptador não aceita variáveis de ambiente arbitrárias na versão inicial;
+- o adaptador não aceita variáveis de ambiente arbitrárias;
 - prompts não são reproduzidos na linha de comando registrada;
 - arquivos de instruções possuem limite de 512 KiB.
 - valores de ambiente sensíveis, JWTs e cabeçalhos Bearer são redigidos antes
@@ -28,5 +28,5 @@ Antigravity e deve ser habilitado conscientemente pelo operador.
 
 ## Relato de vulnerabilidades
 
-Não publique credenciais ou dados de clientes numa issue pública. Abra um relato
-privado no repositório assim que o canal de segurança estiver configurado.
+Não publique credenciais ou dados de clientes numa issue pública. Use o recurso
+**Security advisories** do repositório para enviar um relato privado.

@@ -1,10 +1,10 @@
-# Adaptador Antigravity para Paperclip
+# MaxPaperclipAgyAdapter
 
 Adaptador externo do Antigravity CLI (`agy`) para o Paperclip. Ele usa o protocolo
 estruturado `stream-json`, preserva conversas entre execuções e registra tokens,
 ferramentas e diagnósticos sem depender da apresentação textual do terminal.
 
-> Estado: versão inicial em desenvolvimento. Ainda não publicada no npm.
+Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 
 ## Recursos implementados
 
@@ -41,11 +41,16 @@ npm run verify
 Depois da compilação, instale o diretório no Paperclip como adaptador externo:
 
 ```bash
-paperclipai adapter install --payload-json '{"localPath":"/caminho/para/MaxPaperClipAdapter"}'
+paperclipai adapter install --payload-json '{"packageName":"/caminho/para/MaxPaperclipAgyAdapter","isLocalPath":true}'
 ```
 
-O comando exato pode variar conforme a versão do Paperclip. Consulte `paperclipai
-adapter --help` se a instalação local tiver uma sintaxe diferente.
+Para instalar o pacote publicado:
+
+```bash
+paperclipai adapter install --payload-json '{"packageName":"@maxvue/maxpaperclipagyadapter"}'
+```
+
+O tipo registrado no Paperclip é `maxpaperclip_agy`.
 
 ## Configuração mínima
 
