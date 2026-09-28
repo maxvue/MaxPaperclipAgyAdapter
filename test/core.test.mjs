@@ -18,7 +18,7 @@ const uiParser = require("../ui-parser.cjs");
 
 test("registra o contrato externo esperado pelo Paperclip", () => {
   const adapter = createServerAdapter();
-  assert.equal(adapter.type, "antigravity_local");
+  assert.equal(adapter.type, "maxcode_antigravity");
   assert.equal(typeof adapter.execute, "function");
   assert.equal(typeof adapter.testEnvironment, "function");
   assert.equal(adapter.supportsInstructionsBundle, true);
@@ -110,7 +110,7 @@ test("rejeita arquivo de instruções com caminho relativo", async () => {
   await assert.rejects(
     buildPrompt({
       runId: "run-1",
-      agent: { id: "agent-1", companyId: "company-1", name: "Agente", adapterType: "antigravity_local", adapterConfig: {} },
+      agent: { id: "agent-1", companyId: "company-1", name: "Agente", adapterType: "maxcode_antigravity", adapterConfig: {} },
       runtime: { sessionId: null, sessionParams: null, sessionDisplayId: null, taskKey: null },
       config: { instructionsFilePath: "AGENTS.md" },
       context: {},
@@ -144,7 +144,7 @@ test("executa o fluxo completo pelo contrato do Paperclip", async () => {
       id: "agent-integration",
       companyId: "company-integration",
       name: "Agente de integração",
-      adapterType: "antigravity_local",
+      adapterType: "maxcode_antigravity",
       adapterConfig: {},
     },
     runtime: {

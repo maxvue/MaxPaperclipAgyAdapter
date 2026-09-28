@@ -13,6 +13,7 @@ import {
 import { buildAgyArgs, redactPromptArgument, type PermissionMode } from "./args.js";
 import {
   DEFAULT_GRACE_SEC,
+  ADAPTER_TYPE,
   DEFAULT_MODEL,
   DEFAULT_TIMEOUT_SEC,
 } from "./constants.js";
@@ -119,7 +120,7 @@ export async function execute(
     });
 
     await ctx.onMeta?.({
-      adapterType: "antigravity_local",
+      adapterType: ADAPTER_TYPE,
       command,
       cwd,
       commandArgs: redactPromptArgument(args),
