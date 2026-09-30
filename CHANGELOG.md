@@ -2,6 +2,24 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
+## 2.0.0 — 2026-09-28
+
+- aprovação automática de ferramentas agora explícita e desabilitada por padrão;
+- cancelamento com `SIGTERM`, período de graça e encerramento forçado por `SIGKILL`;
+- política única de variáveis permitidas para execução e diagnóstico;
+- descoberta local de modelos executada com o mesmo ambiente restrito;
+- redação de prompt e contexto antes do envio de metadados ao Paperclip;
+- descarte seguro de linhas de log excessivas até a próxima quebra de linha;
+- identidade de sessão baseada no workspace local estável, inclusive em alvos remotos;
+- teste ativo opcional do modelo, separado da verificação de instalação e login;
+- suporte ao nível de raciocínio `max` do Antigravity 1.2.12;
+- retomada opcional de sessão invalidada quando as instruções mudam;
+- limpeza de processos que permanecem abertos depois do resultado terminal;
+- validação do modelo e da combinação modelo/esforço no teste de ambiente;
+- classificação específica para ações negadas por permissão;
+- documentação dos limites de skills, workspaces adicionais e validação remota;
+- verificação de instalação e importação do tarball real na integração contínua.
+
 ## 1.1.5 — 2026-09-28
 
 - documentação completa dos campos de configuração e respectivos limites;

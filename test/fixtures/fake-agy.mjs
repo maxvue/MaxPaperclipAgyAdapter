@@ -22,6 +22,30 @@ if (event.event !== "user" || typeof event.message?.content !== "string") {
   process.exit(2);
 }
 
+if (event.message.content.includes("__HANG__")) {
+  process.on("SIGTERM", () => {});
+  setInterval(() => {}, 1_000);
+  await new Promise(() => {});
+}
+
+if (event.message.content.includes("__RESULT_THEN_HANG__")) {
+  process.on("SIGTERM", () => {});
+  console.log(JSON.stringify({
+    event: "result",
+    result: { status: "SUCCESS", response: "resultado-terminal", conversation_id: "conv-terminal" },
+  }));
+  setInterval(() => {}, 1_000);
+  await new Promise(() => {});
+}
+
+if (event.message.content.includes("__DENIED__")) {
+  console.log(JSON.stringify({
+    event: "result",
+    result: { status: "ERROR", denied_actions: [{ action: "run_command" }] },
+  }));
+  process.exit(1);
+}
+
 console.log(JSON.stringify({
   event: "init",
   conversation_id: "conv-integration",

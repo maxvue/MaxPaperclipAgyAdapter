@@ -42,6 +42,19 @@ export interface ParsedAgyError {
   raw: Record<string, unknown>;
 }
 
+export function hasAgyTerminalResult(output: { stdout: string; stderr: string }): boolean {
+  return output.stdout.split(/\r?\n/).some((rawLine) => {
+    const line = rawLine.trim();
+    if (!line.startsWith("{")) return false;
+    try {
+      const decoded: unknown = JSON.parse(line);
+      return isRecord(decoded) && stringValue(decoded.event) === "result";
+    } catch {
+      return false;
+    }
+  });
+}
+
 function readUsage(value: unknown): {
   usage: UsageSummary;
   thinkingTokens: number | null;

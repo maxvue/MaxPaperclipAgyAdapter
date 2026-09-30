@@ -1,5 +1,5 @@
 import type { AdapterConfigSchema } from "@paperclipai/adapter-utils";
-import { DEFAULT_GRACE_SEC, DEFAULT_MODEL, DEFAULT_TIMEOUT_SEC } from "./constants.js";
+import { DEFAULT_GRACE_SEC, DEFAULT_MODEL, DEFAULT_TERMINAL_RESULT_CLEANUP_GRACE_MS, DEFAULT_TIMEOUT_SEC } from "./constants.js";
 import { listModels } from "./models.js";
 
 export async function getConfigSchema(): Promise<AdapterConfigSchema> {
@@ -40,7 +40,16 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
           { label: "Baixo", value: "low" },
           { label: "Médio", value: "medium" },
           { label: "Alto", value: "high" },
+          { label: "Máximo", value: "max" },
         ],
+        group: "Execução",
+      },
+      {
+        key: "persistSession",
+        label: "Persistir conversa",
+        type: "toggle",
+        default: true,
+        hint: "Retoma conversas compatíveis entre execuções do mesmo agente e workspace.",
         group: "Execução",
       },
       {
@@ -56,10 +65,18 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
         type: "select",
         default: "sandbox",
         options: [
-          { label: "Aprovação automática + sandbox de terminal (recomendado)", value: "sandbox" },
+          { label: "Sandbox de terminal (recomendado)", value: "sandbox" },
           { label: "Workspace sem sandbox", value: "workspace" },
         ],
         hint: "O sandbox limita comandos de terminal; navegador, MCP e outras ferramentas do agente não são isolados por esta opção.",
+        group: "Segurança",
+      },
+      {
+        key: "dangerouslySkipPermissions",
+        label: "Aprovar ferramentas automaticamente",
+        type: "toggle",
+        default: false,
+        hint: "Adiciona --dangerously-skip-permissions. Habilite somente para agentes e ambientes confiáveis.",
         group: "Segurança",
       },
       {
@@ -83,6 +100,22 @@ export async function getConfigSchema(): Promise<AdapterConfigSchema> {
         type: "textarea",
         hint: "Aceita os campos do agente, tarefa, projeto, empresa, comentário e wake payload.",
         group: "Prompt",
+      },
+      {
+        key: "liveEnvironmentProbe",
+        label: "Teste ativo do modelo",
+        type: "toggle",
+        default: false,
+        hint: "Envia uma solicitação curta ao modelo durante o teste do ambiente; pode consumir cota.",
+        group: "Avançado",
+      },
+      {
+        key: "terminalResultCleanupGraceMs",
+        label: "Espera após resultado final (ms)",
+        type: "number",
+        default: DEFAULT_TERMINAL_RESULT_CLEANUP_GRACE_MS,
+        hint: "Encerra o processo se ele permanecer aberto depois de emitir o resultado final.",
+        group: "Avançado",
       },
       {
         key: "timeoutSec",

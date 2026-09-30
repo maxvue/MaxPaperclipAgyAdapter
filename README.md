@@ -17,7 +17,8 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 - ferramentas e resultados no histórico visual do Paperclip;
 - descoberta dinâmica de modelos pelo formato JSON estruturado;
 - teste de versão, instalação, autenticação e diretório no ambiente de execução;
-- aprovação automática com sandbox de terminal ativado por padrão;
+- aprovação automática opcional e desabilitada por padrão;
+- sandbox de terminal ativado por padrão;
 - timeout e período de encerramento configuráveis;
 - instruções externas com limite de tamanho;
 - parser visual isolado compatível com o contrato `1.0.0`;
@@ -40,8 +41,8 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 | Alvo | Suporte | Observações |
 |---|---|---|
 | Host local | Sim | Usa o workspace resolvido pelo Paperclip ou o `cwd` configurado. |
-| SSH | Sim | Executa pelo contrato oficial de alvo remoto do Paperclip. O `agy` e suas credenciais devem existir no alvo. |
-| Sandbox gerenciado | Sim | O runtime precisa disponibilizar o executável `agy`; o adaptador não instala o CLI automaticamente. |
+| SSH | Compatível pelo contrato | Executa pela abstração oficial do Paperclip. O `agy` e suas credenciais devem existir no alvo; a matriz automatizada ainda não possui um servidor SSH real. |
+| Sandbox gerenciado | Compatível pelo contrato | O runtime precisa disponibilizar o executável `agy`; a matriz automatizada ainda não possui um sandbox real. |
 
 O adaptador declara seu comando por `getRuntimeCommandSpec()`, mas não fornece
 `installCommand`. A preparação da imagem ou do host remoto é responsabilidade
@@ -109,12 +110,16 @@ política da plataforma.
 | `command` | string | `agy` | Nome do executável ou caminho absoluto. É iniciado diretamente, sem shell. |
 | `agent` | string | — | Agente personalizado do Antigravity. |
 | `model` | string | `auto` | Modelo retornado pela descoberta estruturada do `agy`. |
-| `effort` | string | automático | `low`, `medium` ou `high`; só pode ser usado com `model: "auto"`. |
+| `effort` | string | automático | `low`, `medium`, `high` ou `max`; só pode ser usado com `model: "auto"`. |
+| `persistSession` | boolean | `true` | Retoma a conversa somente quando workspace, alvo e instruções continuam compatíveis. |
 | `cwd` | string absoluto | workspace da tarefa | Fallback quando a execução não possui workspace apropriado. |
-| `permissionMode` | string | `sandbox` | `sandbox` ou `workspace`. Ambos usam aprovação automática; muda a contenção dos comandos de terminal. |
+| `permissionMode` | string | `sandbox` | `sandbox` ou `workspace`; controla somente a contenção dos comandos de terminal. |
+| `dangerouslySkipPermissions` | boolean | `false` | Adiciona `--dangerously-skip-permissions`. Autoriza ferramentas sem confirmação e deve ser habilitado conscientemente. |
 | `disableSlashCommands` | boolean | `true` | Evita expansão acidental de comandos `/` vindos de tarefas. |
 | `instructionsFilePath` | string absoluto | — | Arquivo Markdown/`AGENTS.md` de até 512 KiB, acrescentado ao prompt. |
 | `promptTemplate` | string | contrato padrão do Paperclip | Template com dados do agente, tarefa, projeto, empresa, comentário e wake payload. |
+| `liveEnvironmentProbe` | boolean | `false` | Faz uma solicitação curta e sem ferramentas no teste do ambiente; pode consumir cota. |
+| `terminalResultCleanupGraceMs` | número | `2000` | Espera de 0 a 60.000 ms antes de encerrar um processo que já emitiu o resultado final. |
 | `timeoutSec` | número | `3600` | Limite de execução entre 1 e 86.400 segundos. `0` desativa o timeout do adaptador. |
 | `graceSec` | número | `15` | Espera entre 1 e 120 segundos antes do encerramento forçado. |
 
@@ -123,17 +128,22 @@ compatíveis do Paperclip gerem o formulário sem código de interface específi
 
 ### Modos de permissão
 
-- `sandbox`: padrão recomendado. O `agy` recebe aprovações automáticas e seus
-  comandos de terminal usam o sandbox. Navegador, MCP e outras ferramentas do
-  agente não são isolados por essa opção.
+- `sandbox`: padrão recomendado. Comandos de terminal usam o sandbox. Navegador,
+  MCP e outras ferramentas do agente não são isolados por essa opção.
 - `workspace`: permite alterações diretas no workspace. Use apenas em ambientes
   confiáveis e com versionamento ou backup.
+
+`dangerouslySkipPermissions` é independente desses modos. O padrão seguro é
+`false`. Quando `true`, o adaptador acrescenta a opção homônima do `agy`, e as
+ferramentas são aprovadas automaticamente. Essa alteração de padrão torna a
+versão 2.0 incompatível com configurações antigas que dependiam de aprovação
+automática implícita.
 
 ## Sessões
 
 O ID da conversa do Antigravity é salvo nos parâmetros de sessão do Paperclip. A
 conversa só é retomada quando o diretório e o ambiente de execução salvos
-coincidem com o workspace atual.
+coincidem com o workspace atual e o arquivo de instruções não mudou.
 Credenciais, prompts e tokens de autenticação não são persistidos na sessão.
 
 Uma sessão incompatível com o workspace ou o alvo de execução atual é
@@ -172,7 +182,12 @@ O botão **Testar ambiente** do Paperclip verifica no mesmo alvo da execução:
 1. disponibilidade do diretório de trabalho;
 2. execução de `agy --version` e versão mínima 1.1.15;
 3. autenticação e descoberta de modelos via saída JSON;
-4. aviso quando `permissionMode: "workspace"` está habilitado.
+4. disponibilidade do modelo e validade da combinação modelo/esforço;
+5. avisos separados para sandbox de terminal desabilitado e aprovação automática;
+6. opcionalmente, uma resposta real em `stream-json` quando
+   `liveEnvironmentProbe` estiver habilitado.
+
+O teste ativo fica desabilitado por padrão porque consome cota do provedor.
 
 ## Solução de problemas
 
@@ -207,6 +222,17 @@ O pacote publica `./ui-parser` como CommonJS autocontido e declara o contrato
 mensagens, raciocínio, chamadas/resultados de ferramentas e resultado final.
 Ele não possui imports em runtime e é executado pelo Paperclip em um Web Worker
 isolado.
+
+## Limites conhecidos
+
+- o adaptador ainda não declara o contrato de skills do Paperclip;
+- workspaces adicionais são encaminhados em execução local; em alvos remotos,
+  somente o workspace principal materializado pelo Paperclip é utilizado;
+- SSH e sandbox usam o contrato oficial, mas exigem validação de ponta a ponta
+  na infraestrutura específica do operador;
+- as opções dinâmicas de modelo do formulário são descobertas no host do
+  Paperclip; em alvos remotos, o resultado de **Testar ambiente** é a fonte
+  autoritativa de compatibilidade.
 
 ## Segurança operacional
 

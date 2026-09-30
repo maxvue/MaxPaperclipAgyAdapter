@@ -11,6 +11,7 @@ export interface BuildAgyArgsInput {
   effort: string;
   cwd: string;
   permissionMode: PermissionMode;
+  dangerouslySkipPermissions?: boolean;
   mode?: AgyMode;
   agent?: string;
   disableSlashCommands?: boolean;
@@ -20,7 +21,7 @@ export interface BuildAgyArgsInput {
 }
 
 export function modelIncludesEffort(model: string): boolean {
-  return /-(?:low|medium|high)$/i.test(model.trim());
+  return /-(?:low|medium|high|max)$/i.test(model.trim());
 }
 
 /** @deprecated O timeout interno do agy não deve ser utilizado. */
@@ -37,7 +38,7 @@ export function buildAgyArgs(input: BuildAgyArgsInput): string[] {
   if (model && model !== "auto") args.push("--model", model);
 
   const effort = input.effort.trim().toLowerCase();
-  if (model === "auto" && ["low", "medium", "high"].includes(effort)) {
+  if (model === "auto" && ["low", "medium", "high", "max"].includes(effort)) {
     args.push("--effort", effort);
   }
 
@@ -46,9 +47,7 @@ export function buildAgyArgs(input: BuildAgyArgsInput): string[] {
   if (agent) args.push("--agent", agent);
   if (input.disableSlashCommands !== false) args.push("--disable-slash-commands");
 
-  // O modo headless exige aprovação automática. --sandbox limita apenas os
-  // comandos de terminal; outras ferramentas continuam sujeitas ao agente agy.
-  args.push("--dangerously-skip-permissions");
+  if (input.dangerouslySkipPermissions === true) args.push("--dangerously-skip-permissions");
   if (input.permissionMode === "sandbox") args.push("--sandbox");
 
   args.push("--add-dir", path.resolve(input.cwd));

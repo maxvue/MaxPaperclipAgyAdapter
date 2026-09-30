@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { AdapterModel } from "@paperclipai/adapter-utils";
 import { DEFAULT_MODEL } from "./constants.js";
+import { allowedEnvironment } from "./environment.js";
 
 const execFileAsync = promisify(execFile);
 const fallbackModels: AdapterModel[] = [
@@ -52,6 +53,7 @@ export function parseModelsOutput(stdout: string): AdapterModel[] {
 export async function listModels(command = "agy"): Promise<AdapterModel[]> {
   try {
     const { stdout } = await execFileAsync(command, ["--output-format", "json", "models"], {
+      env: allowedEnvironment(),
       timeout: 30_000,
       maxBuffer: 4 * 1024 * 1024,
     });

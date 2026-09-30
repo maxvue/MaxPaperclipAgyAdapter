@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import type { AdapterExecutionContext } from "@paperclipai/adapter-utils";
 import {
   DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE,
@@ -13,9 +14,12 @@ import {
 import { MAX_INSTRUCTIONS_BYTES } from "./constants.js";
 import { stringValue } from "./value-utils.js";
 
-async function readInstructions(config: Record<string, unknown>): Promise<string> {
+export async function loadInstructions(config: Record<string, unknown>): Promise<{
+  content: string;
+  fingerprint: string | null;
+}> {
   const filename = stringValue(config.instructionsFilePath);
-  if (!filename) return "";
+  if (!filename) return { content: "", fingerprint: null };
   if (!path.isAbsolute(filename)) {
     throw new Error(`O caminho do arquivo de instruções deve ser absoluto: ${filename}`);
   }
@@ -24,12 +28,19 @@ async function readInstructions(config: Record<string, unknown>): Promise<string
   if (stat.size > MAX_INSTRUCTIONS_BYTES) {
     throw new Error(`O arquivo de instruções excede ${MAX_INSTRUCTIONS_BYTES} bytes: ${filename}`);
   }
-  return fs.readFile(filename, "utf8");
+  const content = await fs.readFile(filename, "utf8");
+  const fingerprint = createHash("sha256")
+    .update(path.resolve(filename))
+    .update("\0")
+    .update(content)
+    .digest("hex");
+  return { content, fingerprint };
 }
 
 export async function buildPrompt(
   ctx: AdapterExecutionContext,
   resumedSession = false,
+  loadedInstructions?: string,
 ): Promise<string> {
   const conversationMode = ctx.context.conversationMode === true;
   const template =
@@ -59,7 +70,9 @@ export async function buildPrompt(
     run: { id: ctx.runId, source: "on_demand" },
     context: ctx.context,
   };
-  const instructions = (await readInstructions(ctx.config)).trim();
+  const instructions = resumedSession
+    ? ""
+    : (loadedInstructions ?? (await loadInstructions(ctx.config)).content).trim();
   const taskContext = conversationMode
     ? selectPaperclipTaskMarkdown(ctx.context, {
         resumedSession,

@@ -6,10 +6,11 @@ O adaptador inicia o executável configurado diretamente, sem `shell`, e passa o
 argumentos como uma lista. O prompt não é incluído na lista de argumentos exibida
 nos metadados de execução.
 
-O modo padrão habilita aprovação automática e `--sandbox`. Essa contenção cobre
-comandos de terminal, não todas as ferramentas que um agente Antigravity possa
-ter (por exemplo, navegador e MCP). O modo `workspace` também remove essa
-contenção de terminal e deve ser habilitado conscientemente pelo operador.
+O modo padrão habilita `--sandbox`, mas não a aprovação automática. Essa
+contenção cobre comandos de terminal, não todas as ferramentas que um agente
+Antigravity possa ter (por exemplo, navegador e MCP). O modo `workspace` remove
+essa contenção de terminal. A opção `dangerouslySkipPermissions` aprova
+ferramentas automaticamente. As duas opções devem ser avaliadas separadamente.
 
 ## Dados sensíveis
 

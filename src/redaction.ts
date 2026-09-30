@@ -27,6 +27,24 @@ export function collectSensitiveValues(environment: Record<string, string>): str
     .sort((left, right) => right.length - left.length);
 }
 
+export function collectSensitiveValuesFromValue(value: unknown): string[] {
+  const values = new Set<string>();
+  const visit = (current: unknown, seen: WeakSet<object>, depth: number) => {
+    if (typeof current !== "object" || current === null || depth >= 64 || seen.has(current)) return;
+    seen.add(current);
+    if (Array.isArray(current)) {
+      for (const entry of current) visit(entry, seen, depth + 1);
+      return;
+    }
+    for (const [key, entry] of Object.entries(current)) {
+      if (isSensitiveKey(key) && typeof entry === "string" && entry.length >= 4) values.add(entry);
+      visit(entry, seen, depth + 1);
+    }
+  };
+  visit(value, new WeakSet<object>(), 0);
+  return [...values].sort((left, right) => right.length - left.length);
+}
+
 export function redactString(value: string, sensitiveValues: readonly string[] = []): string {
   let redacted = value;
   for (const secret of sensitiveValues) {
@@ -80,14 +98,22 @@ export function createStreamingRedactor(
   flush(): Promise<void>;
 } {
   const pending = { stdout: "", stderr: "" };
+  const discarding = { stdout: false, stderr: false };
   const maxPendingCharacters = 1024 * 1024;
   return {
     async write(stream, chunk) {
+      if (discarding[stream]) {
+        const firstBreak = chunk.search(/[\r\n]/);
+        if (firstBreak < 0) return;
+        discarding[stream] = false;
+        chunk = chunk.slice(firstBreak + 1);
+      }
       const combined = pending[stream] + chunk;
       const lastBreak = Math.max(combined.lastIndexOf("\n"), combined.lastIndexOf("\r"));
       if (lastBreak < 0) {
         if (combined.length > maxPendingCharacters) {
           pending[stream] = "";
+          discarding[stream] = true;
           await sink(stream, `[paperclip] ${combined.length} caracteres sem quebra de linha foram omitidos por segurança.\n`);
         } else {
           pending[stream] = combined;
@@ -102,6 +128,7 @@ export function createStreamingRedactor(
         if (!pending[stream]) continue;
         await sink(stream, redactString(pending[stream], sensitiveValues));
         pending[stream] = "";
+        discarding[stream] = false;
       }
     },
   };

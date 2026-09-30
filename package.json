@@ -1,6 +1,6 @@
 {
   "name": "@maxvue/maxpaperclipagyadapter",
-  "version": "1.1.5",
+  "version": "2.0.0",
   "description": "Adaptador externo seguro do Antigravity CLI (agy) para o Paperclip",
   "license": "MIT",
   "author": "MaxVue contributors",
@@ -50,7 +50,8 @@
     "clean": "rm -rf dist coverage",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && node --test \"test/**/*.test.mjs\"",
-    "verify": "npm run typecheck && npm test && npm pack --dry-run"
+    "verify:package": "node scripts/verify-package.mjs",
+    "verify": "npm run typecheck && npm test && npm run verify:package"
   },
   "dependencies": {
     "@paperclipai/adapter-utils": "^2026.916.1"

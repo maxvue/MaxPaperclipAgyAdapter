@@ -29,8 +29,10 @@ Campos principais:
 - command: comando ou caminho absoluto do agy;
 - cwd: diretório absoluto alternativo para a execução;
 - model: modelo do Antigravity, ou auto;
-- effort: low, medium ou high;
-- permissionMode: aprovação automática com sandbox apenas de terminal, ou workspace;
+- effort: low, medium, high ou max;
+- permissionMode: sandbox apenas de terminal, ou workspace;
+- dangerouslySkipPermissions: aprovação automática explícita de ferramentas;
+- persistSession: retomada de conversas compatíveis;
 - timeoutSec e graceSec: limites de execução e encerramento.
 `;
 
@@ -56,6 +58,7 @@ export function createServerAdapter(): ServerAdapterModule {
     runtimeToolDelivery: "environment",
     supportsInstructionsBundle: true,
     instructionsPathKey: "instructionsFilePath",
+    requiresMaterializedRuntimeSkills: false,
   };
 }
 
@@ -64,7 +67,8 @@ export default createServerAdapter;
 export { ADAPTER_LABEL, ADAPTER_TYPE } from "./constants.js";
 export { buildAgyArgs, buildAgyStdin, redactPromptArgument, resolvePrintTimeoutSec } from "./args.js";
 export { inferProvider } from "./models.js";
-export { buildPrompt } from "./prompt.js";
-export { isTransientError, parseAgyError, parseAgyStream } from "./parser.js";
-export { collectSensitiveValues, createStreamingRedactor, isSensitiveKey, redactRecord, redactString, redactValue } from "./redaction.js";
+export { allowedEnvironment, inheritedEnvironmentForRedaction, isolatedLocalEnvironment } from "./environment.js";
+export { buildPrompt, loadInstructions } from "./prompt.js";
+export { hasAgyTerminalResult, isTransientError, parseAgyError, parseAgyStream } from "./parser.js";
+export { collectSensitiveValues, collectSensitiveValuesFromValue, createStreamingRedactor, isSensitiveKey, redactRecord, redactString, redactValue } from "./redaction.js";
 export { sessionCodec, sessionManagement } from "./session.js";

@@ -21,7 +21,7 @@ function normalize(raw: unknown): Record<string, unknown> | null {
     version: SESSION_VERSION,
     conversationId,
   };
-  for (const key of ["cwd", "model", "workspaceId"] as const) {
+  for (const key of ["cwd", "model", "workspaceId", "instructionsFingerprint"] as const) {
     const value = stringValue(raw[key]);
     if (value) result[key] = value;
   }
