@@ -29,7 +29,7 @@ body:
     id: versoes
     attributes:
       label: Versões relevantes
-      placeholder: Adaptador 1.1.5, Node.js 24.11, Paperclip ..., agy 1.2.12
+      placeholder: Adaptador 2.0.1, Node.js 24.11, Paperclip ..., agy 1.2.12
   - type: textarea
     id: contexto
     attributes:

@@ -1,6 +1,6 @@
 {
   "name": "@maxvue/maxpaperclipagyadapter",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Adaptador externo seguro do Antigravity CLI (agy) para o Paperclip",
   "license": "MIT",
   "author": "MaxVue contributors",
@@ -46,6 +46,9 @@
     "README.md",
     "CHANGELOG.md",
     "SECURITY.md",
+    "SUPPORT.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
     "LICENSE"
   ],
   "scripts": {

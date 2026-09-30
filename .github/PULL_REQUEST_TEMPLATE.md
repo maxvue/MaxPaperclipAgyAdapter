@@ -4,7 +4,7 @@ Descreva o problema resolvido e por que esta mudança é necessária.
 
 ## Alterações
 
-- 
+- Descreva aqui.
 
 ## Como validar
 
