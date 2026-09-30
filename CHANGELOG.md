@@ -2,6 +2,15 @@
 
 Todas as alterações relevantes deste projeto serão documentadas neste arquivo.
 
+## 2.0.1 — 2026-09-30
+
+- badges e início rápido para facilitar a descoberta e a adoção;
+- guia de contribuição, suporte e código de conduta;
+- formulários estruturados para bugs, propostas e dúvidas;
+- template de pull request com verificações de qualidade e segurança;
+- palavras-chave adicionais para descoberta no npm;
+- correção da documentação sobre sessões expiradas.
+
 ## 2.0.0 — 2026-09-28
 
 - aprovação automática de ferramentas agora explícita e desabilitada por padrão;

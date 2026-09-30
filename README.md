@@ -1,10 +1,31 @@
 # MaxPaperclipAgyAdapter
 
+[![npm](https://img.shields.io/npm/v/%40maxvue%2Fmaxpaperclipagyadapter?logo=npm&label=npm)](https://www.npmjs.com/package/@maxvue/maxpaperclipagyadapter)
+[![downloads](https://img.shields.io/npm/dm/%40maxvue%2Fmaxpaperclipagyadapter?logo=npm&label=downloads)](https://www.npmjs.com/package/@maxvue/maxpaperclipagyadapter)
+[![CI](https://github.com/maxvue/MaxPaperclipAgyAdapter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/maxvue/MaxPaperclipAgyAdapter/actions/workflows/ci.yml)
+[![licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](./LICENSE)
+
 Adaptador externo do Antigravity CLI (`agy`) para o Paperclip. Ele usa o protocolo
 estruturado `stream-json`, preserva conversas entre execuções e registra tokens,
 ferramentas e diagnósticos sem depender da apresentação textual do terminal.
 
 Pacote npm: `@maxvue/maxpaperclipagyadapter`.
+
+> [!IMPORTANT]
+> Este é um projeto independente, mantido pela comunidade. Ele não é um
+> componente oficial do Paperclip nem do Antigravity.
+
+## Comece rapidamente
+
+Instale o pacote diretamente pelo gerenciador de adaptadores do Paperclip:
+
+```bash
+paperclipai adapter install --payload-json '{"packageName":"@maxvue/maxpaperclipagyadapter"}'
+```
+
+Depois, crie ou edite um agente, selecione o tipo `maxpaperclip_agy` e use
+**Testar ambiente** para validar o executável, a versão e a autenticação do
+`agy` antes da primeira execução.
 
 ## Recursos implementados
 
@@ -12,7 +33,6 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 - entrada e saída NDJSON por `stream-json`, com o prompt enviado por `stdin`;
 - criação e retomada de conversas;
 - invalidação segura da sessão quando o workspace muda;
-- recuperação nativa de conversas expiradas sem repetir a tarefa;
 - tokens de entrada, saída, cache e raciocínio;
 - ferramentas e resultados no histórico visual do Paperclip;
 - descoberta dinâmica de modelos pelo formato JSON estruturado;
@@ -24,7 +44,7 @@ Pacote npm: `@maxvue/maxpaperclipagyadapter`.
 - parser visual isolado compatível com o contrato `1.0.0`;
 - cancelamento cooperativo antes e durante o processo;
 - isolamento do ambiente herdado e desativação de comandos slash por padrão;
-- modo de planejamento do Paperclip encaminhado ao `agy`.
+- modo de planejamento do Paperclip encaminhado ao `agy`;
 - redação recursiva de tokens, chaves, cookies e cabeçalhos Bearer em logs e
   resultados estruturados.
 
@@ -241,6 +261,21 @@ Paperclip. Revise o pacote e suas dependências antes de instalar. Este adaptado
 restringe o ambiente herdado a uma allowlist, envia o prompt por `stdin`, redige
 segredos em streaming e não executa o campo `command` através de shell. Consulte
 [SECURITY.md](./SECURITY.md) para o modelo de ameaça e o canal de relato.
+
+## Comunidade e contribuição
+
+Contribuições são bem-vindas, inclusive correções de documentação, relatos de
+compatibilidade, novos testes e melhorias no suporte a ambientes remotos.
+
+- leia o [guia de contribuição](./CONTRIBUTING.md) antes de abrir um pull request;
+- consulte [suporte](./SUPPORT.md) para escolher o canal correto;
+- use as [issues](https://github.com/maxvue/MaxPaperclipAgyAdapter/issues) para
+  bugs, propostas e dúvidas reproduzíveis;
+- veja o [changelog](./CHANGELOG.md) para acompanhar as versões;
+- siga o [código de conduta](./CODE_OF_CONDUCT.md) em toda interação.
+
+Se o adaptador foi útil, marque o repositório com uma estrela. Isso ajuda outras
+pessoas da comunidade Paperclip a encontrá-lo.
 
 ## Licença
 
