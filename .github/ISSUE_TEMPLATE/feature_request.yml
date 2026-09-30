@@ -1,0 +1,39 @@
+name: Propor uma melhoria
+description: Sugira um recurso ou melhoria de experiência e compatibilidade.
+title: "[Proposta]: "
+labels:
+  - enhancement
+body:
+  - type: checkboxes
+    id: verificacoes
+    attributes:
+      label: Verificações iniciais
+      options:
+        - label: Pesquisei propostas semelhantes nas issues.
+          required: true
+        - label: Esta proposta não contém dados sensíveis.
+          required: true
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema ou necessidade
+      description: Explique quem é afetado e por que o comportamento atual não atende.
+    validations:
+      required: true
+  - type: textarea
+    id: solucao
+    attributes:
+      label: Solução proposta
+      description: Descreva o comportamento desejado e um exemplo de uso.
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas consideradas
+  - type: checkboxes
+    id: contribuicao
+    attributes:
+      label: Interesse em contribuir
+      options:
+        - label: Posso ajudar a implementar ou testar esta proposta.

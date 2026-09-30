@@ -1,0 +1,37 @@
+name: Fazer uma pergunta
+description: Peça ajuda após consultar a documentação e as issues existentes.
+title: "[Dúvida]: "
+labels:
+  - question
+body:
+  - type: checkboxes
+    id: verificacoes
+    attributes:
+      label: Verificações iniciais
+      options:
+        - label: Consultei o README, o guia de suporte e as issues existentes.
+          required: true
+        - label: Removi credenciais, tokens, prompts privados e dados de clientes.
+          required: true
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: O que você está tentando fazer?
+    validations:
+      required: true
+  - type: textarea
+    id: tentativas
+    attributes:
+      label: O que você já tentou?
+    validations:
+      required: true
+  - type: input
+    id: versoes
+    attributes:
+      label: Versões relevantes
+      placeholder: Adaptador 1.1.5, Node.js 24.11, Paperclip ..., agy 1.2.12
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto adicional
+      description: Inclua somente configuração e logs já redigidos.

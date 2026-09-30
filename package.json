@@ -15,10 +15,14 @@
   "type": "module",
   "keywords": [
     "paperclip",
+    "paperclipai",
     "paperclip-adapter",
+    "external-adapter",
+    "agent-adapter",
     "antigravity",
     "agy",
-    "ai-agent"
+    "ai-agent",
+    "typescript"
   ],
   "exports": {
     ".": {

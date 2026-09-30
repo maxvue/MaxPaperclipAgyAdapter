@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Relatar uma vulnerabilidade
+    url: https://github.com/maxvue/MaxPaperclipAgyAdapter/security/advisories/new
+    about: Use o canal privado para vulnerabilidades e exposição de dados sensíveis.
+  - name: Guia de suporte
+    url: https://github.com/maxvue/MaxPaperclipAgyAdapter/blob/main/SUPPORT.md
+    about: Consulte os passos de diagnóstico antes de abrir uma issue.

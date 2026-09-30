@@ -1,0 +1,71 @@
+name: Relatar um bug
+description: Informe um comportamento reproduzível diferente do esperado.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado pelo relato. Não publique credenciais, tokens, prompts privados ou dados de clientes.
+  - type: checkboxes
+    id: verificacoes
+    attributes:
+      label: Verificações iniciais
+      options:
+        - label: Pesquisei issues abertas e encerradas.
+          required: true
+        - label: Removi todos os dados sensíveis do relato.
+          required: true
+        - label: Executei o teste de ambiente do adaptador.
+          required: true
+  - type: input
+    id: versao-adaptador
+    attributes:
+      label: Versão do adaptador
+      placeholder: 1.1.5
+    validations:
+      required: true
+  - type: input
+    id: versoes-ambiente
+    attributes:
+      label: Versões do ambiente
+      description: Informe Node.js, Paperclip e Antigravity CLI.
+      placeholder: Node.js 24.11, Paperclip ..., agy 1.2.12
+    validations:
+      required: true
+  - type: dropdown
+    id: alvo
+    attributes:
+      label: Alvo de execução
+      options:
+        - Local
+        - SSH
+        - Sandbox gerenciado
+    validations:
+      required: true
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Passos para reproduzir
+      description: Inclua uma configuração mínima sem segredos.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: observado
+    attributes:
+      label: Resultado observado
+      description: Inclua apenas o trecho necessário de logs já redigidos.
+    validations:
+      required: true
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto adicional
+      description: Sistema operacional, modelo, modo de permissão ou outros detalhes úteis.
